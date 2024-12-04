@@ -298,7 +298,7 @@ _global_script_class_icons={
 "NPC": "res://textures/mobs/npcs/hairs/kare.png",
 "Night": "",
 "Optimizer": "",
-"PlantResource": "",
+"PlantResource": "res://minigames/minigame6/resources/seed_packet_legendary.png",
 "Player": "",
 "PlayerPlayer": "",
 "Promocode": "res://textures/gui/promocodes.png",
@@ -328,6 +328,7 @@ run/delta_sync_after_draw=true
 boot_splash/image="res://textures/misc/pre_splash_screen.png"
 boot_splash/bg_color=Color( 0, 0, 0, 1 )
 config/icon="res://textures/misc/icon.png"
+config/windows_native_icon="res://textures/misc/windows_icon.ico"
 config/quit_on_go_back=false
 
 [audio]

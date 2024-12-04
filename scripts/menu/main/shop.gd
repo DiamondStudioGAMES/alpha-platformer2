@@ -20,7 +20,6 @@ onready var p1 = $scroll/offers/resources/potion1/count
 onready var b1 = $scroll/offers/resources/potion1/buy
 onready var p2 = $scroll/offers/resources/potion2/count
 onready var b2 = $scroll/offers/resources/potion2/buy
-onready var na = $scroll/offers/other/no_ads/buy
 onready var http = $http_request
 var gem = load("res://textures/items/gem.png")
 var coin = load("res://textures/items/coin.png")
@@ -62,174 +61,9 @@ var AMULET_ICONS = {
 	"ulti" : load("res://textures/items/amulet_ulti_frag.png"),
 }
 
-# IAP PURCHASES
-const GEMS_500_SKU = "gems500"
-const GEMS_1250_SKU = "gems1250"
-const GEMS_2500_SKU = "gems2500"
-const NO_ADS_SKU = "no_ads"
-var payment
-onready var butt_gem0 = $scroll/offers/resources/gems0/buy
-onready var butt_gem1 = $scroll/offers/resources/gems1/buy
-onready var butt_gem2 = $scroll/offers/resources/gems2/buy
-onready var butt_no_ads = $scroll/offers/other/no_ads/buy
-
-
-func init_iap():
-	if Engine.has_singleton("GodotGooglePlayBilling"):
-		payment = Engine.get_singleton("GodotGooglePlayBilling")
-		payment.connect("connected", self, "_on_connected")
-		payment.connect("disconnected", self, "_on_disconnected")
-		payment.connect("connect_error", self, "_on_connect_error")
-		payment.connect("purchases_updated", self, "_on_purchases_updated")
-		payment.connect("purchase_error", self, "_on_purchase_error")
-		payment.connect("product_details_query_completed", self, "_on_sku_details_query_completed")
-		payment.connect("product_details_query_error", self, "_on_sku_details_query_error")
-		payment.connect("purchase_acknowledgement_error", self, "_on_purchase_acknowledgement_error")
-		payment.connect("purchase_consumption_error", self, "_on_purchase_consumption_error")
-		payment.connect("query_purchases_response", self, "_on_query_purchases_response")
-		payment.startConnection()
-	else:
-		print("Android IAP is unavailable! Platform: " + OS.get_name())
-
-
-func _on_connected():
-	payment.querySkuDetails([GEMS_500_SKU, GEMS_1250_SKU, GEMS_2500_SKU, NO_ADS_SKU], "inapp")
-	payment.queryPurchases("inapp")
-
-
-func _on_query_purchases_response(query_result):
-	if query_result.status == OK:
-		for purchase in query_result.purchases:
-			print(purchase)
-			if purchase.products[0] in [GEMS_500_SKU, GEMS_1250_SKU, GEMS_2500_SKU, NO_ADS_SKU] and purchase.purchase_state == 1:
-				match purchase.products[0]:
-					NO_ADS_SKU:
-						removed_ads()
-				if not purchase.is_acknowledged:
-					payment.acknowledgePurchase(purchase.purchase_token)
-				if purchase.products[0] in [GEMS_500_SKU, GEMS_1250_SKU, GEMS_2500_SKU]:
-					payment.consumePurchase(purchase.purchase_token)
-	else:
-		printerr("queryPurchases failed, response code: ",
-				query_result.response_code,
-				" debug message: ", query_result.debug_message, ". Will retry in 5s...")
-		yield(get_tree().create_timer(5), "timeout")
-		payment.queryPurchases("inapp")
-
-
-func _on_sku_details_query_completed(sku_details):
-	toggle_buttons(true)
-	for available_sku in sku_details:
-		match available_sku.id:
-			GEMS_500_SKU:
-				butt_gem0.text = make_price(available_sku.one_time_purchase_details)
-			GEMS_1250_SKU:
-				butt_gem1.text = make_price(available_sku.one_time_purchase_details)
-			GEMS_2500_SKU:
-				butt_gem2.text = make_price(available_sku.one_time_purchase_details)
-			NO_ADS_SKU:
-				if G.main_getv("no_ads", false):
-					continue
-				butt_no_ads.text = make_price(available_sku.one_time_purchase_details)
-
-
-func _on_purchases_updated(purchases):
-	for purchase in purchases:
-		if not purchase.is_acknowledged and purchase.purchase_state == 1:
-			match purchase.products[0]:
-				GEMS_500_SKU:
-					get_gems(500)
-				GEMS_1250_SKU:
-					get_gems(1250)
-				GEMS_2500_SKU:
-					get_gems(2500)
-				NO_ADS_SKU:
-					removed_ads()
-			if purchase.products[0] in [GEMS_500_SKU, GEMS_1250_SKU, GEMS_2500_SKU]:
-				payment.consumePurchase(purchase.purchase_token)
-			else:
-				payment.acknowledgePurchase(purchase.purchase_token)
-
-
-func _on_purchase_error(code, message):
-	printerr("Purchase error %d: %s" % [code, message])
-	$error.popup_centered()
-
-
-func _on_purchase_acknowledgement_error(code, message, purchase_token):
-	printerr("Purchase acknowledgement error %d: %s, purchase rokens: %s. Will retry in 0.5s..." % [code, message, purchase_token])
-	yield(get_tree().create_timer(0.5), "timeout")
-	payment.acknowledgePurchase(purchase_token)
-
-
-func _on_purchase_consumption_error(code, message, purchase_token):
-	printerr("Purchase consumption error %d: %s, purchase token: %s. Will retry in 0.5s..." % [code, message, purchase_token])
-	yield(get_tree().create_timer(0.5), "timeout")
-	payment.consumePurchase(purchase_token)
-
-
-func _on_sku_details_query_error(code, message):
-	printerr("SKU details query error %d: %s. Will retry in 5s..." % [code, message])
-	yield(get_tree().create_timer(5), "timeout")
-	payment.querySkuDetails([GEMS_500_SKU, GEMS_1250_SKU, GEMS_2500_SKU, NO_ADS_SKU], "inapp")
-
-
-func _on_disconnected():
-	toggle_buttons(false)
-	printerr("GodotGooglePlayBilling disconnected. Will try to reconnect in 5s...")
-	yield(get_tree().create_timer(5), "timeout")
-	payment.startConnection()
-
-
-func _on_connect_error():
-	_on_disconnected()
-
-
-func toggle_buttons(state):
-	butt_gem0.disabled = not state
-	butt_gem1.disabled = not state
-	butt_gem2.disabled = not state
-	butt_no_ads.disabled = not state
-	if not state:
-		butt_gem0.text = "-"
-		butt_gem1.text = "-"
-		butt_gem2.text = "-"
-		if not G.main_getv("no_ads", false):
-			butt_no_ads.text = "-"
-
-func make_price(data):
-	var norm = data.price_amount_micros / 1000000
-	var micros_text = "%0.2f" % norm
-	return micros_text + " " + data.price_currency_code
-
-func buy_gems500():
-	var response = payment.purchase(GEMS_500_SKU)
-	if response.status != OK:
-		print("Purchase error %s: %s" % [response.response_code, response.debug_message])
-		$error.popup_centered()
-
-func buy_gems1250():
-	var response = payment.purchase(GEMS_1250_SKU)
-	if response.status != OK:
-		print("Purchase error %s: %s" % [response.response_code, response.debug_message])
-		$error.popup_centered()
-
-func buy_gems2500():
-	var response = payment.purchase(GEMS_2500_SKU)
-	if response.status != OK:
-		print("Purchase error %s: %s" % [response.response_code, response.debug_message])
-		$error.popup_centered()
-
-func buy_no_ads():
-	var response = payment.purchase(NO_ADS_SKU)
-	if response.status != OK:
-		print("Purchase error %s: %s" % [response.response_code, response.debug_message])
-		$error.popup_centered()
-# END OF IAP
 
 func _ready():
 	fetch_online_offers()
-	init_iap()
 	$confirm.get_ok().text = tr("shop.buy")
 	current_day = Time.get_date_dict_from_system()["day"]
 	current_unix_time = Time.get_unix_time_from_system()
@@ -263,28 +97,6 @@ func _process(delta):
 	else:
 		p2.text = tr("shop.you_have") + str(G.getv("potions3", 0))
 		b2.disabled = int(p2.text) >= 1
-	if G.main_getv("no_ads", false):
-		na.disabled = true
-		na.text = tr("shop.bought")
-
-
-func get_gems(count):
-	yield(get_tree(), "idle_frame")
-	get_tree().paused = true
-	yield(get_tree().create_timer(0.5), "timeout")
-	G.receive_loot({"gems" : count})
-
-
-func removed_ads():
-	if G.main_getv("no_ads", false):
-		return
-	G.main_setv("no_ads", true)
-	G.save()
-	yield(get_tree(), "idle_frame")
-	get_tree().paused = true
-	yield(get_tree().create_timer(0.5), "timeout")
-	get_tree().paused = false
-	get_tree().change_scene("res://scenes/menu/no_ads.tscn")
 
 
 func buy(costs = "", receives = "", id = -1):
@@ -784,7 +596,7 @@ func quit():
 func fetch_online_offers():
 	http.download_file = OS.get_cache_dir().plus_file("online_offers_cache.cfg")
 	http.connect("request_completed", self, "request_online_response", [], CONNECT_ONESHOT)
-	var err = http.request("https://diamond-studio-games.github.io/apa2/offers.cfg")
+	var err = http.request("https://diamondstudiogames.github.io/apa2/offers.cfg")
 	if err:
 		print("fetch failed:", err)
 

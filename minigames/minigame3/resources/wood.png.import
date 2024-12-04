@@ -2,19 +2,22 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/wood.png-5f671412622b28fdc9209a5f3e60914b.stex"
+path.s3tc="res://.import/wood.png-5f671412622b28fdc9209a5f3e60914b.s3tc.stex"
+path.etc2="res://.import/wood.png-5f671412622b28fdc9209a5f3e60914b.etc2.stex"
+path.etc="res://.import/wood.png-5f671412622b28fdc9209a5f3e60914b.etc.stex"
 metadata={
-"vram_texture": false
+"imported_formats": [ "s3tc", "etc2", "etc" ],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://minigames/minigame3/resources/wood.png"
-dest_files=[ "res://.import/wood.png-5f671412622b28fdc9209a5f3e60914b.stex" ]
+dest_files=[ "res://.import/wood.png-5f671412622b28fdc9209a5f3e60914b.s3tc.stex", "res://.import/wood.png-5f671412622b28fdc9209a5f3e60914b.etc2.stex", "res://.import/wood.png-5f671412622b28fdc9209a5f3e60914b.etc.stex" ]
 
 [params]
 
-compress/mode=1
+compress/mode=2
 compress/lossy_quality=0.5
 compress/hdr_mode=0
 compress/bptc_ldr=0

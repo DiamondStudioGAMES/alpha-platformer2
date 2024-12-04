@@ -61,7 +61,7 @@ func fetch_online_promocode(text):
 	set_message(tr("promocodes.fetch"))
 	http.download_file = OS.get_cache_dir().plus_file("online_promocodes_cache.cfg")
 	http.connect("request_completed", self, "request", [], CONNECT_ONESHOT)
-	var err = http.request("https://diamond-studio-games.github.io/apa2/promocodes.cfg")
+	var err = http.request("https://diamondstudiogames.github.io/apa2/promocodes.cfg")
 	if err:
 		set_message(tr("promocodes.fetch.error"), true)
 

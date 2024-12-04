@@ -49,7 +49,7 @@ func check_updates():
 		return
 	label.text = tr("ss.status.check.upd")
 	http.connect("request_completed", self, "update_request", [], CONNECT_ONESHOT)
-	var err = http.request("https://diamond-studio-games.github.io/apa2/versions.cfg")
+	var err = http.request("https://diamondstudiogames.github.io/apa2/versions.cfg")
 	if err:
 		check_patches()
 
@@ -77,7 +77,7 @@ func check_patches():
 		return
 	label.text = tr("ss.status.check.patch")
 	http.connect("request_completed", self, "patch_request", [], CONNECT_ONESHOT)
-	var err = http.request("https://diamond-studio-games.github.io/apa2/patches.cfg")
+	var err = http.request("https://diamondstudiogames.github.io/apa2/patches.cfg")
 	if err:
 		end_check()
 
@@ -147,7 +147,7 @@ func restart():
 
 
 func open_link():
-	OS.shell_open("https://diamond-studio-games.github.io/privacy_policy.html")
+	OS.shell_open("https://diamondstudiogames.github.io/privacy_policy.html")
 
 
 func open_update_link():

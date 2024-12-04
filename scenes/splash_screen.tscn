@@ -241,7 +241,7 @@ align = 1
 valign = 1
 
 [node name="http" type="HTTPRequest" parent="."]
-timeout = 15.0
+timeout = 5.0
 
 [node name="sfx" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 5 )

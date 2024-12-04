@@ -2,19 +2,22 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/grass.jpg-ed007e34a9c8ff12ae08168b257925b7.stex"
+path.s3tc="res://.import/grass.jpg-ed007e34a9c8ff12ae08168b257925b7.s3tc.stex"
+path.etc2="res://.import/grass.jpg-ed007e34a9c8ff12ae08168b257925b7.etc2.stex"
+path.etc="res://.import/grass.jpg-ed007e34a9c8ff12ae08168b257925b7.etc.stex"
 metadata={
-"vram_texture": false
+"imported_formats": [ "s3tc", "etc2", "etc" ],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://minigames/minigame3/resources/grass.jpg"
-dest_files=[ "res://.import/grass.jpg-ed007e34a9c8ff12ae08168b257925b7.stex" ]
+dest_files=[ "res://.import/grass.jpg-ed007e34a9c8ff12ae08168b257925b7.s3tc.stex", "res://.import/grass.jpg-ed007e34a9c8ff12ae08168b257925b7.etc2.stex", "res://.import/grass.jpg-ed007e34a9c8ff12ae08168b257925b7.etc.stex" ]
 
 [params]
 
-compress/mode=1
+compress/mode=2
 compress/lossy_quality=0.7
 compress/hdr_mode=0
 compress/bptc_ldr=0
